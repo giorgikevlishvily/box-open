@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brawl Stars Box Opening and Mini-Games</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f4c3;
+            color: #333;
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            color: #f57f20; /* Bright Orange */
+        }
+        h2 {
+            color: #1b5e20; /* Dark Green */
+            border-bottom: 2px solid #388e3c; /* Lighter Green */
+            padding-bottom: 5px;
+        }
+        .inventory, .game-section {
+            margin-top: 20px;
+            border: 1px solid #4caf50; /* Green */
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        button {
+            margin: 5px;
+            padding: 12px 20px;
+            background-color: #1976d2; /* Blue */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #115293; /* Darker Blue */
+        }
+        .box-animation {
+            display: none;
+            width: 220px;
+            height: 120px;
+            margin: 20px auto;
+            background-color: #ffca28; /* Yellow */
+            color: #333;
+            line-height: 120px;
+            font-size: 24px;
+            border-radius: 10px;
+            position: relative;
+            animation: shake 0.5s ease-in-out forwards, fadeOut 1s 0.5s forwards;
+        }
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            50% { transform: translateX(10px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        input[type="number"] {
+            padding: 10px;
+            border: 1px solid #1976d2; /* Blue */
+            border-radius: 5px;
+            width: 200px;
+        }
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #0d47a1; /* Darker Blue */
+        }
+        .result-message {
+            font-weight: bold;
+            margin-top: 15px;
+            color: #d32f2f; /* Red */
+        }
+        .brawler-select {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Brawl Stars Box Opening</h1>
+
+<div id="boxArea">
+    <button id="openBox" onclick="openBox()">Open Box</button>
+    <div id="boxAnimation" class="box-animation">Opening Box...</div>
+    <p id="boxResult"></p>
+</div>
+
+<div class="inventory">
+    <h2>Inventory</h2>
+    <ul id="inventoryList"></ul>
+</div>
+
+<div class="game-section">
+    <h2>Mini-Games</h2>
+
+    <!-- Guess the Number Game -->
+    <h3>Guess the Number Game</h3>
+    <input type="number" id="userGuess" placeholder="Enter your guess" />
+    <button id="guessNumberButton" style="display:none;" onclick="makeGuess()">Guess</button>
+    <button onclick="startGuessTheNumber()">Start Guessing</button>
+    <p id="result" class="result-message"></p>
+
+    <!-- Rock, Paper, Scissors Game -->
+    <h3>Rock, Paper, Scissors</h3>
+    <button onclick="playRockPaperScissors('Rock')">Rock</button>
+    <button onclick="playRockPaperScissors('Paper')">Paper</button>
+    <button onclick="playRockPaperScissors('Scissors')">Scissors</button>
+
+    <!-- Brawler Quiz Game -->
+    <h3>Brawler Quiz</h3>
+    <button onclick="startBrawlerQuiz()">Start Brawler Quiz</button>
+
+    <!-- Brawl War Game -->
+    <h3>Brawl War</h3>
+    <div class="brawler-select">
+        <select id="playerBrawler">
+            <option value="" disabled selected>Select your brawler</option>
+        </select>
+        <button onclick="startBrawlWar()">Fight!</button>
+    </div>
+    <p id="brawlWarResult" class="result-message"></p>
+</div>
+
+<script>
+    // Inventory
+    const inventory = [];
+
+    // Brawlers Data
+    const brawlers = [
+        { name: "Shelly", rarity: "Common" },
+        { name: "Nita", rarity: "Common" },
+        { name: "Colt", rarity: "Rare" },
+        { name: "Bull", rarity: "Rare" },
+        { name: "Jessie", rarity: "Rare" },
+        { name: "Brock", rarity: "Rare" },
+        { name: "Darryl", rarity: "Epic" },
+        { name: "Poco", rarity: "Epic" },
+        { name: "Rico", rarity: "Epic" },
+        { name: "Leon", rarity: "Legendary" },
+        { name: "Spike", rarity: "Mythic" },
+        // Add more brawlers as needed
+    ];
+
+    // Open Box Function
+    function openBox() {
+        const animation = document.getElementById('boxAnimation');
+        animation.style.display = 'block';
+        
+        setTimeout(() => {
+            const randomBrawler = brawlers[Math.floor(Math.random() * brawlers.length)];
+            inventory.push(randomBrawler);
+            document.getElementById('boxResult').textContent = `You opened a box and got: ${randomBrawler.name} (${randomBrawler.rarity})!`;
+            animation.style.display = 'none'; // Hide animation after it finishes
+            updateInventory();
+        }, 1000); // Delay for 1 second to show the animation
+    }
+
+    // Update Inventory Display
+    function updateInventory() {
+        const inventoryList = document.getElementById('inventoryList');
+        const playerBrawlerSelect = document.getElementById('playerBrawler');
+        inventoryList.innerHTML = ''; // Clear existing list
+        playerBrawlerSelect.innerHTML = '<option value="" disabled selected>Select your brawler</option>'; // Clear brawler select options
+
+        inventory.forEach(item => {
+            const li = document.createElement('li');
+            li.textContent = `${item.name} (${item.rarity})`;
+            inventoryList.appendChild(li);
+            // Add options for the Brawl War select menu
+            const option = document.createElement('option');
+            option.value = item.name;
+            option.textContent = `${item.name} (${item.rarity})`;
+            playerBrawlerSelect.appendChild(option);
+        });
+    }
+
+    // Mini-Games
+
+    // Guess the Number Game
+    let targetNumber;
+    let guessCount = 0;
+
+    function startGuessTheNumber() {
+        targetNumber = Math.floor(Math.random() * 100) + 1; // Random number between 1 and 100
+        guessCount = 0;
+        document.getElementById('result').textContent = 'Guess a number between 1 and 100!';
+        document.getElementById('openBox').style.display = 'none'; // Hide the box opening button
+        document.getElementById('guessNumberButton').style.display = 'block'; // Show guess button
+    }
+
+    function makeGuess() {
+        const userGuess = Number(document.getElementById('userGuess').value);
+        guessCount++;
+
+        if (userGuess === targetNumber) {
+            document.getElementById('result').textContent = `Correct! It was ${targetNumber}. Guesses: ${guessCount}`;
+            document.getElementById('guessNumberButton').style.display = 'none'; // Hide guess button
+            document.getElementById('openBox').style.display = 'block'; // Show the box opening button
+        } else if (userGuess < targetNumber) {
+            document.getElementById('result').textContent = 'Too low! Try again.';
+        } else {
+            document.getElementById('result').textContent = 'Too high! Try again.';
+        }
+    }
+
+    // Rock, Paper, Scissors Game
+    function playRockPaperScissors(playerChoice) {
+        const choices = ['Rock', 'Paper', 'Scissors'];
+        const computerChoice = choices[Math.floor(Math.random() * choices.length)];
+        
+        let resultMessage;
+        if (playerChoice === computerChoice) {
+            resultMessage = `It's a draw! Both chose ${playerChoice}.`;
+        } else if (
+            (playerChoice === 'Rock' && computerChoice === 'Scissors') ||
+            (playerChoice === 'Paper' && computerChoice === 'Rock') ||
+            (playerChoice === 'Scissors' && computerChoice === 'Paper')
+        ) {
+            resultMessage = `You win! ${playerChoice} beats ${computerChoice}.`;
+        } else {
+            resultMessage = `You lose! ${computerChoice} beats ${playerChoice}.`;
+        }
+
+        document.getElementById('result').textContent = resultMessage;
+    }
+
+    // Brawler Quiz Game
+    const brawlerQuestions = [
+        { question: "Who is known as the 'Brawler' with a high health?", answer: "El Primo" },
+        { question: "Which Brawler uses a pet bear in battle?", answer: "Nita" },
+        { question: "What is the name of the brawler with a robot arm?", answer: "Daryl" },
+    ];
+
+    function startBrawlerQuiz() {
+        const randomQuestion = brawlerQuestions[Math.floor(Math.random() * brawlerQuestions.length)];
+        const userAnswer = prompt(randomQuestion.question);
+        
+        if (userAnswer && userAnswer.trim().toLowerCase() === randomQuestion.answer.toLowerCase()) {
+            document.getElementById('result').textContent = "Correct!";
+        } else {
+            document.getElementById('result').textContent = `Incorrect! The correct answer was: ${randomQuestion.answer}`;
+        }
+    }
+
+    // Brawl War Game
+    function startBrawlWar() {
+        const playerBrawlerName = document.getElementById('playerBrawler').value;
+        if (!playerBrawlerName) {
+            document.getElementById('brawlWarResult').textContent = "Please select a brawler to fight!";
+            return;
+        }
+
+        const playerBrawler = inventory.find(b => b.name === playerBrawlerName);
+        const opponentBrawler = brawlers[Math.floor(Math.random() * brawlers.length)];
+
+        let playerScore = getRarityScore(playerBrawler.rarity);
+        let opponentScore = getRarityScore(opponentBrawler.rarity);
+
+        let resultMessage;
+        if (playerScore > opponentScore) {
+            resultMessage = `You won against ${opponentBrawler.name} (${opponentBrawler.rarity})!`;
+        } else if (playerScore < opponentScore) {
+            resultMessage = `You lost to ${opponentBrawler.name} (${opponentBrawler.rarity}).`;
+        } else {
+            resultMessage = `It's a draw! You and ${opponentBrawler.name} (${opponentBrawler.rarity}) are equally matched.`;
+        }
+
+        document.getElementById('brawlWarResult').textContent = resultMessage;
+    }
+
+    function getRarityScore(rarity) {
+        switch (rarity) {
+            case "Common": return 1;
+            case "Rare": return 2;
+            case "Epic": return 3;
+            case "Mythic": return 4;
+            case "Legendary": return 5;
+            default: return 0;
+        }
+    }
+</script>
+
+</body>
+</html>
